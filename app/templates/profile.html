@@ -1,0 +1,650 @@
+<div class="user-chip" id="profileCard">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Finora</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fc;
+            color: #20243a;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 45px auto;
+            padding: 0 22px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 27px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #6651e8;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #85899c;
+            margin-top: 7px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 25px rgba(30, 35, 80, 0.04);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 105px;
+            height: 105px;
+        }
+
+        #profilePreview {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e9e7ff;
+            border: 4px solid #eeeaff;
+        }
+
+        .upload-label {
+            display: inline-block;
+            margin-top: 12px;
+            color: #6651e8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .profile-header h2 {
+            font-size: 21px;
+            margin-bottom: 6px;
+        }
+
+        .profile-header p {
+            color: #85899c;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            color: #85899c;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .field label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #e1e3ed;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .field input:focus {
+            border-color: #7460ed;
+            box-shadow: 0 0 0 3px rgba(116, 96, 237, 0.1);
+        }
+
+        .field input:disabled {
+            background: #f4f5f9;
+            color: #85899c;
+            cursor: not-allowed;
+        }
+
+        .button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 22px;
+            background: #6b4ce6;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+        }
+
+        .button:hover {
+            background: #5739cf;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success {
+            color: #16834b;
+        }
+
+        .error {
+            color: #d33b48;
+        }
+
+        .security-note {
+            font-size: 13px;
+            color: #85899c;
+            margin-top: 18px;
+        }
+
+        @media (max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="topbar">
+        <div>
+            <h1>My Profile</h1>
+            <p class="subtitle">Manage your Finora account and personal details.</p>
+        </div>
+
+        <a href="/dashboard/" class="back-btn">← Dashboard</a>
+    </div>
+
+    <!-- Profile Information -->
+
+    <div class="card">
+
+        <div class="profile-header">
+
+            <div>
+                <img
+                    id="profilePreview"
+                    src=""
+                    alt="Profile Picture"
+                >
+
+                <br>
+
+                <label class="upload-label" for="profilePicture">
+                    Change Profile Picture
+                </label>
+
+                <input
+                    type="file"
+                    id="profilePicture"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                >
+            </div>
+
+            <div>
+                <h2 id="displayName">Loading profile...</h2>
+                <p id="displayEmail"></p>
+            </div>
+
+        </div>
+
+        <h3 class="section-title">Personal Information</h3>
+
+        <p class="section-description">
+            Update your name, email address and profile picture.
+        </p>
+
+        <form id="profileForm">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="name">Full Name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        required
+                        maxlength="100"
+                        placeholder="Enter your full name"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        required
+                        placeholder="Enter your email"
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="button" id="saveProfileBtn">
+                Save Changes
+            </button>
+
+            <p id="profileMessage" class="message"></p>
+
+        </form>
+
+    </div>
+
+
+    <!-- Change Password -->
+
+    <div class="card">
+
+        <h3 class="section-title">Change Password</h3>
+
+        <p class="section-description">
+            Update your password to keep your account secure.
+        </p>
+
+        <form id="passwordForm">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="currentPassword">Current Password</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        required
+                        autocomplete="current-password"
+                        placeholder="Enter current password"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="newPassword">New Password</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="Enter new password"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="Confirm new password"
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="button" id="changePasswordBtn">
+                Update Password
+            </button>
+
+            <p id="passwordMessage" class="message"></p>
+
+        </form>
+
+        <p class="security-note">
+            Your current password is required to make this change.
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const token = sessionStorage.getItem("access_token");
+
+    if (!token) {
+        window.location.href = "/";
+    }
+
+    const defaultAvatar =
+        "https://ui-avatars.com/api/?name=User&background=eeeaff&color=6651e8&size=200";
+
+
+    // Show messages
+
+    function showMessage(element, message, success) {
+
+        element.textContent = message;
+
+        element.style.display = "block";
+
+        element.className = success
+            ? "message success"
+            : "message error";
+    }
+
+
+    // Load current profile
+
+    async function loadProfile() {
+
+        try {
+
+            const response = await fetch("/auth/me", {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to load profile");
+            }
+
+            const user = await response.json();
+
+            document.getElementById("name").value = user.name || "";
+            document.getElementById("email").value = user.email || "";
+
+            document.getElementById("displayName").textContent =
+                user.name || "User";
+
+            document.getElementById("displayEmail").textContent =
+                user.email || "";
+
+            document.getElementById("profilePreview").src =
+                user.profile_picture || defaultAvatar;
+
+        } catch (error) {
+
+            alert("Unable to load your profile. Please log in again.");
+
+            console.error(error);
+
+            window.location.href = "/";
+
+        }
+
+    }
+
+
+    // Profile picture preview
+
+    document.getElementById("profilePicture").addEventListener(
+        "change",
+        function () {
+
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Only JPG, PNG and WEBP images are allowed.");
+                this.value = "";
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Image must be smaller than 5 MB.");
+                this.value = "";
+                return;
+            }
+
+            document.getElementById("profilePreview").src =
+                URL.createObjectURL(file);
+
+        }
+    );
+
+
+    // Update profile
+
+    document.getElementById("profileForm").addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const message = document.getElementById("profileMessage");
+            const button = document.getElementById("saveProfileBtn");
+
+            const formData = new FormData();
+
+            formData.append(
+                "name",
+                document.getElementById("name").value.trim()
+            );
+
+            formData.append(
+                "email",
+                document.getElementById("email").value.trim()
+            );
+
+            const image = document.getElementById("profilePicture").files[0];
+
+            if (image) {
+                formData.append("profile_picture", image);
+            }
+
+            button.disabled = true;
+            button.textContent = "Saving...";
+
+            try {
+
+                const response = await fetch("/auth/update-profile", {
+
+                    method: "PUT",
+
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+
+                    body: formData
+
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || "Profile update failed");
+                }
+
+                document.getElementById("displayName").textContent =
+                    result.user.name;
+
+                document.getElementById("displayEmail").textContent =
+                    result.user.email;
+
+                document.getElementById("profilePreview").src =
+                    result.user.profile_picture || defaultAvatar;
+
+                document.getElementById("profilePicture").value = "";
+
+                showMessage(
+                    message,
+                    "Profile updated successfully!",
+                    true
+                );
+
+            } catch (error) {
+
+                showMessage(message, error.message, false);
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = "Save Changes";
+
+            }
+
+        }
+    );
+
+
+    // Change password
+
+    document.getElementById("passwordForm").addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const message = document.getElementById("passwordMessage");
+
+            const currentPassword =
+                document.getElementById("currentPassword").value;
+
+            const newPassword =
+                document.getElementById("newPassword").value;
+
+            const confirmPassword =
+                document.getElementById("confirmPassword").value;
+
+            const button = document.getElementById("changePasswordBtn");
+
+            if (newPassword !== confirmPassword) {
+
+                showMessage(
+                    message,
+                    "New password and confirmation do not match.",
+                    false
+                );
+
+                return;
+
+            }
+
+            if (newPassword.length < 6) {
+
+                showMessage(
+                    message,
+                    "Password must contain at least 6 characters.",
+                    false
+                );
+
+                return;
+
+            }
+
+            const formData = new FormData();
+
+            formData.append("current_password", currentPassword);
+            formData.append("new_password", newPassword);
+
+            button.disabled = true;
+            button.textContent = "Updating...";
+
+            try {
+
+                const response = await fetch("/auth/change-password", {
+
+                    method: "PUT",
+
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+
+                    body: formData
+
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || "Password update failed");
+                }
+
+                showMessage(
+                    message,
+                    "Password changed successfully!",
+                    true
+                );
+
+                document.getElementById("passwordForm").reset();
+
+            } catch (error) {
+
+                showMessage(message, error.message, false);
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = "Update Password";
+
+            }
+
+        }
+    );
+
+
+    // Initial load
+
+    loadProfile();
+
+</script>
+
+</body>
+</html>

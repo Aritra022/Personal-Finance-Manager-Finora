@@ -1,0 +1,1091 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .recurring-page {
+        min-height: 100vh;
+        background: #f8fafc;
+        padding: 30px;
+    }
+
+    .recurring-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #0f172a;
+    }
+
+    .page-header p {
+        margin-top: 6px;
+        color: #64748b;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        background: #0f172a;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .summary-card {
+        background: white;
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .summary-card h3 {
+        margin: 0 0 10px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .summary-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 25px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .card h2 {
+        margin-top: 0;
+        color: #0f172a;
+        font-size: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 17px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+        color: #1e293b;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+    }
+
+    .submit-btn {
+        width: 100%;
+        border: none;
+        background: #2563eb;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .submit-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .cancel-btn {
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        background: #e2e8f0;
+        color: #334155;
+        padding: 11px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: none;
+    }
+
+    .recurring-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .recurring-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+    .recurring-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .transaction-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .transaction-category {
+        margin-top: 5px;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .transaction-amount {
+        font-size: 17px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .income-amount {
+        color: #16a34a;
+    }
+
+    .expense-amount {
+        color: #dc2626;
+    }
+
+    .transaction-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .detail-label {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .active-badge {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .paused-badge {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .item-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .action-btn {
+        border: none;
+        padding: 8px 13px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .toggle-btn {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .message {
+        display: none;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        font-size: 14px;
+    }
+
+    .success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+    }
+
+    @media (max-width: 900px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .recurring-page {
+            padding: 18px;
+        }
+
+        .page-header {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .transaction-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="recurring-page">
+
+    <div class="recurring-container">
+
+        <div class="page-header">
+
+            <div>
+                <h1>Recurring Transactions</h1>
+                <p>Manage your regular income and expenses.</p>
+            </div>
+
+            <a href="/dashboard/" class="back-btn">
+                ← Dashboard
+            </a>
+
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-grid">
+
+            <div class="summary-card">
+                <h3>Total Recurring</h3>
+                <div class="summary-value" id="totalRecurring">
+                    0
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Active</h3>
+                <div class="summary-value" id="activeRecurring">
+                    0
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Monthly Amount</h3>
+                <div class="summary-value" id="monthlyAmount">
+                    ₹0.00
+                </div>
+            </div>
+
+        </div>
+
+        <div class="main-grid">
+
+            <!-- Form -->
+            <div class="card">
+
+                <h2 id="formTitle">Add Recurring Transaction</h2>
+
+                <div id="message" class="message"></div>
+
+                <form id="recurringForm">
+
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input
+                            type="text"
+                            id="title"
+                            placeholder="e.g. Netflix Subscription"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transactionType">
+                            Transaction Type
+                        </label>
+
+                        <select id="transactionType" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+
+                        <input
+                            type="number"
+                            id="amount"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="1000"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+
+                        <input
+                            type="text"
+                            id="category"
+                            placeholder="e.g. Entertainment"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="frequency">Frequency</label>
+
+                        <select id="frequency" required>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>
+                                Monthly
+                            </option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+
+                        <input
+                            type="date"
+                            id="startDate"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nextOccurrence">
+                            Next Occurrence
+                        </label>
+
+                        <input
+                            type="date"
+                            id="nextOccurrence"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                        id="submitBtn"
+                    >
+                        Add Transaction
+                    </button>
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        id="cancelBtn"
+                        onclick="cancelEdit()"
+                    >
+                        Cancel Edit
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- List -->
+            <div class="card">
+
+                <h2>Your Recurring Transactions</h2>
+
+                <div
+                    id="recurringList"
+                    class="recurring-list"
+                >
+                    <div class="empty-state">
+                        Loading...
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "/recurring/";
+
+let editingId = null;
+
+
+// Get token
+function getToken() {
+    return sessionStorage.getItem("access_token");
+}
+
+
+// API request
+async function apiRequest(url, options = {}) {
+
+    const token = getToken();
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (!response.ok) {
+
+        let message = "Something went wrong.";
+
+        try {
+            const data = await response.json();
+            message = data.detail || message;
+        } catch (error) {}
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
+
+// Money formatter
+function formatMoney(amount) {
+
+    return "₹" + Number(amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+
+// Date formatter
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "-";
+    }
+
+    const date = new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+
+// Escape HTML
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// Show message
+function showMessage(message, type) {
+
+    const box = document.getElementById("message");
+
+    box.textContent = message;
+    box.className = "message " + type;
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3000);
+}
+
+
+// Load recurring transactions
+async function loadRecurringTransactions() {
+
+    const list = document.getElementById("recurringList");
+
+    try {
+
+        const transactions = await apiRequest(API_URL);
+
+        updateSummary(transactions);
+
+        if (!transactions || transactions.length === 0) {
+
+            list.innerHTML = `
+                <div class="empty-state">
+                    No recurring transactions yet.<br>
+                    Add your first recurring transaction.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        list.innerHTML = transactions.map(transaction => {
+
+            const isIncome =
+                transaction.transaction_type === "income";
+
+            const isActive =
+                transaction.is_active !== false;
+
+            const amountClass =
+                isIncome
+                    ? "income-amount"
+                    : "expense-amount";
+
+            const sign =
+                isIncome ? "+" : "−";
+
+            const statusClass =
+                isActive
+                    ? "active-badge"
+                    : "paused-badge";
+
+            const statusText =
+                isActive ? "Active" : "Paused";
+
+            const toggleText =
+                isActive ? "Pause" : "Activate";
+
+
+            return `
+                <div class="recurring-item">
+
+                    <div class="recurring-top">
+
+                        <div>
+                            <div class="transaction-title">
+                                ${escapeHtml(transaction.title)}
+                            </div>
+
+                            <div class="transaction-category">
+                                ${escapeHtml(transaction.category)}
+                                ·
+                                ${isIncome ? "Income" : "Expense"}
+                            </div>
+                        </div>
+
+                        <div class="transaction-amount ${amountClass}">
+                            ${sign}${formatMoney(transaction.amount)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="transaction-details">
+
+                        <div>
+                            <div class="detail-label">
+                                Frequency
+                            </div>
+
+                            <div class="detail-value">
+                                ${capitalize(
+                                    transaction.frequency
+                                )}
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="detail-label">
+                                Next Occurrence
+                            </div>
+
+                            <div class="detail-value">
+                                ${formatDate(
+                                    transaction.next_occurrence
+                                )}
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="detail-label">
+                                Status
+                            </div>
+
+                            <div>
+                                <span class="status-badge ${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="item-actions">
+
+                        <button
+                            class="action-btn edit-btn"
+                            onclick="editTransaction(
+                                '${transaction.id}'
+                            )"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="action-btn toggle-btn"
+                            onclick="toggleTransaction(
+                                '${transaction.id}'
+                            )"
+                        >
+                            ${toggleText}
+                        </button>
+
+                        <button
+                            class="action-btn delete-btn"
+                            onclick="deleteTransaction(
+                                '${transaction.id}'
+                            )"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error(error);
+
+        list.innerHTML = `
+            <div class="empty-state">
+                ${escapeHtml(error.message)}
+            </div>
+        `;
+    }
+}
+
+
+// Summary
+function updateSummary(transactions) {
+
+    const total = transactions.length;
+
+    const active = transactions.filter(
+        transaction => transaction.is_active !== false
+    ).length;
+
+
+    /*
+        Approximate monthly amount.
+
+        Monthly:
+        amount × 1
+
+        Weekly:
+        amount × 4
+
+        Daily:
+        amount × 30
+
+        Yearly:
+        amount ÷ 12
+    */
+
+    let monthlyAmount = 0;
+
+    transactions.forEach(transaction => {
+
+        if (transaction.is_active === false) {
+            return;
+        }
+
+        const amount = Number(transaction.amount || 0);
+
+        switch (transaction.frequency) {
+
+            case "daily":
+                monthlyAmount += amount * 30;
+                break;
+
+            case "weekly":
+                monthlyAmount += amount * 4;
+                break;
+
+            case "monthly":
+                monthlyAmount += amount;
+                break;
+
+            case "yearly":
+                monthlyAmount += amount / 12;
+                break;
+        }
+    });
+
+
+    document.getElementById("totalRecurring").textContent =
+        total;
+
+    document.getElementById("activeRecurring").textContent =
+        active;
+
+    document.getElementById("monthlyAmount").textContent =
+        formatMoney(monthlyAmount);
+}
+
+
+// Form submit
+document
+    .getElementById("recurringForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+
+        const data = {
+
+            title:
+                document.getElementById("title").value.trim(),
+
+            transaction_type:
+                document.getElementById("transactionType").value,
+
+            amount:
+                Number(document.getElementById("amount").value),
+
+            category:
+                document.getElementById("category").value.trim(),
+
+            frequency:
+                document.getElementById("frequency").value,
+
+            start_date:
+                new Date(
+                    document.getElementById("startDate").value
+                ).toISOString(),
+
+            next_occurrence:
+                new Date(
+                    document.getElementById("nextOccurrence").value
+                ).toISOString()
+        };
+
+
+        try {
+
+            if (editingId) {
+
+                await apiRequest(
+                    `${API_URL}${editingId}`,
+                    {
+                        method: "PUT",
+                        body: JSON.stringify(data)
+                    }
+                );
+
+                showMessage(
+                    "Recurring transaction updated successfully!",
+                    "success"
+                );
+
+            } else {
+
+                await apiRequest(
+                    API_URL,
+                    {
+                        method: "POST",
+                        body: JSON.stringify(data)
+                    }
+                );
+
+                showMessage(
+                    "Recurring transaction added successfully!",
+                    "success"
+                );
+            }
+
+
+            cancelEdit();
+
+            await loadRecurringTransactions();
+
+        } catch (error) {
+
+            showMessage(
+                error.message,
+                "error"
+            );
+        }
+
+    });
+
+
+// Edit transaction
+async function editTransaction(id) {
+
+    try {
+
+        const transactions =
+            await apiRequest(API_URL);
+
+        const transaction =
+            transactions.find(item => item.id === id);
+
+
+        if (!transaction) {
+            return;
+        }
+
+
+        editingId = id;
+
+
+        document.getElementById("formTitle").textContent =
+            "Edit Recurring Transaction";
+
+        document.getElementById("submitBtn").textContent =
+            "Update Transaction";
+
+        document.getElementById("cancelBtn").style.display =
+            "block";
+
+
+        document.getElementById("title").value =
+            transaction.title;
+
+        document.getElementById("transactionType").value =
+            transaction.transaction_type;
+
+        document.getElementById("amount").value =
+            transaction.amount;
+
+        document.getElementById("category").value =
+            transaction.category;
+
+        document.getElementById("frequency").value =
+            transaction.frequency;
+
+        document.getElementById("startDate").value =
+            String(transaction.start_date).slice(0, 10);
+
+        document.getElementById("nextOccurrence").value =
+            String(transaction.next_occurrence).slice(0, 10);
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+// Cancel edit
+function cancelEdit() {
+
+    editingId = null;
+
+    document.getElementById("formTitle").textContent =
+        "Add Recurring Transaction";
+
+    document.getElementById("submitBtn").textContent =
+        "Add Transaction";
+
+    document.getElementById("cancelBtn").style.display =
+        "none";
+
+    document.getElementById("recurringForm").reset();
+
+    document.getElementById("transactionType").value =
+        "expense";
+
+    document.getElementById("frequency").value =
+        "monthly";
+}
+
+
+// Toggle active status
+async function toggleTransaction(id) {
+
+    try {
+
+        await apiRequest(
+            `${API_URL}${id}/toggle`,
+            {
+                method: "PATCH"
+            }
+        );
+
+        showMessage(
+            "Recurring transaction status updated!",
+            "success"
+        );
+
+        await loadRecurringTransactions();
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+// Delete transaction
+async function deleteTransaction(id) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this recurring transaction?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await apiRequest(
+            `${API_URL}${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        showMessage(
+            "Recurring transaction deleted successfully!",
+            "success"
+        );
+
+        await loadRecurringTransactions();
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+// Capitalize text
+function capitalize(value) {
+
+    if (!value) {
+        return "";
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+
+// Load page
+loadRecurringTransactions();
+
+</script>
+
+{% endblock %}

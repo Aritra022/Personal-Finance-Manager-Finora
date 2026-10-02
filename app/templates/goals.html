@@ -1,0 +1,790 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .goals-page {
+        min-height: 100vh;
+        background: #f8fafc;
+        padding: 30px;
+    }
+
+    .goals-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #0f172a;
+    }
+
+    .page-header p {
+        margin-top: 6px;
+        color: #64748b;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        background: #0f172a;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .summary-card {
+        background: white;
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .summary-card h3 {
+        margin: 0 0 10px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .summary-card .value {
+        font-size: 25px;
+        font-weight: bold;
+        color: #0f172a;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 25px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+        margin-top: 0;
+        color: #0f172a;
+    }
+
+    .form-group {
+        margin-bottom: 17px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        border: none;
+        background: #2563eb;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .submit-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .cancel-btn {
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        background: #e2e8f0;
+        color: #334155;
+        padding: 11px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: none;
+    }
+
+    .goals-list {
+        display: grid;
+        gap: 18px;
+    }
+
+    .goal-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .goal-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .goal-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .goal-date {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .amount-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        color: #475569;
+        font-size: 14px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #2563eb;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .goal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        border: none;
+        padding: 8px 14px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        display: none;
+        font-size: 14px;
+    }
+
+    .success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    @media (max-width: 900px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="goals-page">
+    <div class="goals-container">
+
+        <div class="page-header">
+            <div>
+                <h1>Financial Goals</h1>
+                <p>Set targets and track your savings progress.</p>
+            </div>
+
+            <a href="/dashboard/" class="back-btn">
+                ← Dashboard
+            </a>
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+                <h3>Total Goals</h3>
+                <div class="value" id="totalGoals">0</div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Total Target</h3>
+                <div class="value" id="totalTarget">₹0.00</div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Total Saved</h3>
+                <div class="value" id="totalSaved">₹0.00</div>
+            </div>
+
+        </div>
+
+        <div class="main-grid">
+
+            <!-- Add / Edit Goal -->
+            <div class="card">
+
+                <h2 id="formTitle">Add Goal</h2>
+
+                <div id="message" class="message"></div>
+
+                <form id="goalForm">
+
+                    <div class="form-group">
+                        <label for="goalName">Goal Name</label>
+                        <input
+                            type="text"
+                            id="goalName"
+                            placeholder="e.g. New Laptop"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetAmount">Target Amount</label>
+                        <input
+                            type="number"
+                            id="targetAmount"
+                            min="1"
+                            step="0.01"
+                            placeholder="50000"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentAmount">Current Saved Amount</label>
+                        <input
+                            type="number"
+                            id="currentAmount"
+                            min="0"
+                            step="0.01"
+                            value="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetDate">Target Date</label>
+                        <input
+                            type="date"
+                            id="targetDate"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        Add Goal
+                    </button>
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        id="cancelBtn"
+                        onclick="cancelEdit()"
+                    >
+                        Cancel Edit
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- Goals -->
+            <div class="card">
+
+                <h2>Your Goals</h2>
+
+                <div id="goalsList" class="goals-list">
+                    <div class="empty-state">
+                        Loading goals...
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+const API_URL = "/goals/";
+
+let editingGoalId = null;
+
+
+// Get JWT token
+function getToken() {
+    return sessionStorage.getItem("access_token");
+}
+
+
+// Show message
+function showMessage(message, type) {
+
+    const messageBox = document.getElementById("message");
+
+    messageBox.textContent = message;
+    messageBox.className = "message " + type;
+    messageBox.style.display = "block";
+
+    setTimeout(() => {
+        messageBox.style.display = "none";
+    }, 3000);
+}
+
+
+// API request
+async function apiRequest(url, options = {}) {
+
+    const token = getToken();
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (!response.ok) {
+
+        let errorMessage = "Something went wrong.";
+
+        try {
+            const errorData = await response.json();
+            errorMessage = errorData.detail || errorMessage;
+        } catch (error) {}
+
+        throw new Error(errorMessage);
+    }
+
+    return response.json();
+}
+
+
+// Format money
+function formatMoney(amount) {
+
+    return "₹" + Number(amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+
+// Format date
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "-";
+    }
+
+    return new Date(dateString).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+
+// Load goals
+async function loadGoals() {
+
+    const goalsList = document.getElementById("goalsList");
+
+    try {
+
+        const goals = await apiRequest(API_URL);
+
+        updateSummary(goals);
+
+        if (!goals || goals.length === 0) {
+
+            goalsList.innerHTML = `
+                <div class="empty-state">
+                    No goals yet.<br>
+                    Create your first financial goal.
+                </div>
+            `;
+
+            return;
+        }
+
+        goalsList.innerHTML = goals.map(goal => {
+
+            const target = Number(goal.target_amount || 0);
+            const current = Number(goal.current_amount || 0);
+
+            let progress = 0;
+
+            if (target > 0) {
+                progress = (current / target) * 100;
+            }
+
+            progress = Math.min(progress, 100);
+
+            return `
+                <div class="goal-card">
+
+                    <div class="goal-top">
+
+                        <div class="goal-name">
+                            ${escapeHtml(goal.name)}
+                        </div>
+
+                        <div class="goal-date">
+                            Target: ${formatDate(goal.target_date)}
+                        </div>
+
+                    </div>
+
+                    <div class="amount-row">
+
+                        <span>
+                            Saved: ${formatMoney(current)}
+                        </span>
+
+                        <span>
+                            Target: ${formatMoney(target)}
+                        </span>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            class="progress-fill"
+                            style="width: ${progress}%"
+                        ></div>
+
+                    </div>
+
+                    <div class="progress-text">
+                        ${progress.toFixed(1)}% completed
+                    </div>
+
+                    <div class="goal-actions">
+
+                        <button
+                            class="edit-btn"
+                            onclick="editGoal('${goal.id}', '${escapeAttribute(goal.name)}', ${target}, ${current}, '${goal.target_date}')"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteGoal('${goal.id}')"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        goalsList.innerHTML = `
+            <div class="empty-state">
+                ${escapeHtml(error.message)}
+            </div>
+        `;
+    }
+}
+
+
+// Update summary cards
+function updateSummary(goals) {
+
+    let totalTarget = 0;
+    let totalSaved = 0;
+
+    goals.forEach(goal => {
+
+        totalTarget += Number(goal.target_amount || 0);
+        totalSaved += Number(goal.current_amount || 0);
+
+    });
+
+    document.getElementById("totalGoals").textContent = goals.length;
+
+    document.getElementById("totalTarget").textContent =
+        formatMoney(totalTarget);
+
+    document.getElementById("totalSaved").textContent =
+        formatMoney(totalSaved);
+}
+
+
+// Add / update goal
+document.getElementById("goalForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const name = document.getElementById("goalName").value.trim();
+    const targetAmount = Number(
+        document.getElementById("targetAmount").value
+    );
+    const currentAmount = Number(
+        document.getElementById("currentAmount").value
+    );
+    const targetDate = document.getElementById("targetDate").value;
+
+    if (currentAmount > targetAmount) {
+
+        showMessage(
+            "Current amount cannot be greater than target amount.",
+            "error"
+        );
+
+        return;
+    }
+
+    const data = {
+        name: name,
+        target_amount: targetAmount,
+        current_amount: currentAmount,
+        target_date: new Date(targetDate).toISOString()
+    };
+
+    try {
+
+        if (editingGoalId) {
+
+            await apiRequest(
+                `${API_URL}${editingGoalId}`,
+                {
+                    method: "PUT",
+                    body: JSON.stringify(data)
+                }
+            );
+
+            showMessage(
+                "Goal updated successfully!",
+                "success"
+            );
+
+        } else {
+
+            await apiRequest(
+                API_URL,
+                {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                }
+            );
+
+            showMessage(
+                "Goal created successfully!",
+                "success"
+            );
+        }
+
+        cancelEdit();
+
+        await loadGoals();
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+    }
+
+});
+
+
+// Edit goal
+function editGoal(id, name, targetAmount, currentAmount, targetDate) {
+
+    editingGoalId = id;
+
+    document.getElementById("formTitle").textContent = "Edit Goal";
+
+    document.getElementById("goalName").value = name;
+
+    document.getElementById("targetAmount").value =
+        targetAmount;
+
+    document.getElementById("currentAmount").value =
+        currentAmount;
+
+    document.getElementById("targetDate").value =
+        String(targetDate).slice(0, 10);
+
+    document.getElementById("submitBtn").textContent =
+        "Update Goal";
+
+    document.getElementById("cancelBtn").style.display =
+        "block";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+// Cancel edit
+function cancelEdit() {
+
+    editingGoalId = null;
+
+    document.getElementById("formTitle").textContent =
+        "Add Goal";
+
+    document.getElementById("submitBtn").textContent =
+        "Add Goal";
+
+    document.getElementById("cancelBtn").style.display =
+        "none";
+
+    document.getElementById("goalForm").reset();
+
+    document.getElementById("currentAmount").value = 0;
+}
+
+
+// Delete goal
+async function deleteGoal(goalId) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this goal?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        await apiRequest(
+            `${API_URL}${goalId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        showMessage(
+            "Goal deleted successfully!",
+            "success"
+        );
+
+        await loadGoals();
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+// Prevent HTML injection
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// Safe value for onclick
+function escapeAttribute(value) {
+
+    return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
+
+
+// Load when page opens
+loadGoals();
+
+</script>
+
+{% endblock %}

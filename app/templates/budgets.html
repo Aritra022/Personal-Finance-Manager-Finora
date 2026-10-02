@@ -1,0 +1,1710 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets | Finora{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Budgets</h1>
+            <p>Create and manage your monthly spending limits.</p>
+        </div>
+
+        <a href="/dashboard/" class="back-button">
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Summary -->
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Total Budget
+            </div>
+
+            <div
+                class="summary-value"
+                id="totalBudget"
+            >
+                ₹0.00
+            </div>
+
+            <div class="summary-note">
+                All monthly budgets
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Categories
+            </div>
+
+            <div
+                class="summary-value"
+                id="budgetCount"
+            >
+                0
+            </div>
+
+            <div class="summary-note">
+                Budget categories
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Message -->
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <!-- Add / Edit Budget -->
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+                <h2 id="formTitle">
+                    Add New Budget
+                </h2>
+
+                <p>
+                    Set a monthly spending limit for a category.
+                </p>
+            </div>
+
+        </div>
+
+
+        <form id="budgetForm">
+
+            <input
+                type="hidden"
+                id="budgetId"
+            >
+
+
+            <!-- Category -->
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select
+                    id="category"
+                    required
+                >
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="Food">
+                        Food
+                    </option>
+
+                    <option value="Transport">
+                        Transport
+                    </option>
+
+                    <option value="Shopping">
+                        Shopping
+                    </option>
+
+                    <option value="Entertainment">
+                        Entertainment
+                    </option>
+
+                    <option value="Bills">
+                        Bills
+                    </option>
+
+                    <option value="Education">
+                        Education
+                    </option>
+
+                    <option value="Healthcare">
+                        Healthcare
+                    </option>
+
+                    <option value="Travel">
+                        Travel
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Monthly Limit -->
+            <div class="form-group">
+
+                <label for="monthlyLimit">
+                    Monthly Limit (₹)
+                </label>
+
+                <input
+                    type="number"
+                    id="monthlyLimit"
+                    min="1"
+                    step="0.01"
+                    placeholder="e.g. 5000"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Month -->
+            <div class="form-group">
+
+                <label for="month">
+                    Month
+                </label>
+
+                <input
+                    type="month"
+                    id="month"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Buttons -->
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                    id="submitButton"
+                >
+                    Add Budget
+                </button>
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="cancelButton"
+                    hidden
+                    onclick="resetForm()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- Budget History -->
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Budget History</h2>
+
+                <p>
+                    Your configured monthly budgets.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Category
+                        </th>
+
+                        <th>
+                            Monthly Limit
+                        </th>
+
+                        <th>
+                            Month
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="budgetTableBody">
+
+                    <tr>
+
+                        <td colspan="4">
+                            Loading budgets...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================
+   PAGE
+========================================= */
+
+.page-container {
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+
+    color: #1e293b;
+
+}
+
+
+.page-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
+
+}
+
+
+.page-header h1 {
+
+    font-size: 28px;
+
+    margin: 0 0 7px;
+
+}
+
+
+.page-header p {
+
+    margin: 0;
+
+    color: #64748b;
+
+}
+
+
+.back-button {
+
+    text-decoration: none;
+
+    background: #312e81;
+
+    color: white;
+
+    padding: 11px 16px;
+
+    border-radius: 9px;
+
+    font-weight: 700;
+
+}
+
+
+.back-button:hover {
+
+    opacity: .9;
+
+}
+
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.summary-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 24px;
+
+}
+
+
+.summary-card {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    padding: 22px;
+
+}
+
+
+.summary-label {
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+.summary-value {
+
+    font-size: 29px;
+
+    font-weight: 800;
+
+    margin-top: 12px;
+
+}
+
+
+.summary-note {
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    margin-top: 8px;
+
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.card {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    padding: 24px;
+
+    margin-bottom: 24px;
+
+}
+
+
+.card-header {
+
+    margin-bottom: 22px;
+
+}
+
+
+.card-header h2 {
+
+    margin: 0 0 7px;
+
+    font-size: 19px;
+
+}
+
+
+.card-header p {
+
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.message {
+
+    display: none;
+
+    padding: 13px 16px;
+
+    margin-bottom: 20px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+
+}
+
+
+.message.success {
+
+    display: block;
+
+    background: #dcfce7;
+
+    color: #166534;
+
+}
+
+
+.message.error {
+
+    display: block;
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+
+/* =========================================
+   FORM
+========================================= */
+
+.form-group {
+
+    margin-bottom: 18px;
+
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+.form-group input,
+.form-group select {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 13px;
+
+    border: 1px solid #d8dee8;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: #1e293b;
+
+    font: inherit;
+
+    outline: none;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+
+    border-color: #6d28d9;
+
+    box-shadow:
+        0 0 0 3px rgba(109, 40, 217, .10);
+
+}
+
+
+.form-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.primary-button,
+.secondary-button {
+
+    border: none;
+
+    padding: 11px 18px;
+
+    border-radius: 9px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.primary-button {
+
+    background: #312e81;
+
+    color: white;
+
+}
+
+
+.secondary-button {
+
+    background: #64748b;
+
+    color: white;
+
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.table-wrapper {
+
+    overflow-x: auto;
+
+}
+
+
+table {
+
+    width: 100%;
+
+    min-width: 650px;
+
+    border-collapse: collapse;
+
+}
+
+
+th,
+td {
+
+    padding: 14px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #eef2f7;
+
+    color: #1e293b;
+
+}
+
+
+th {
+
+    background: #f8fafc;
+
+    color: #475569;
+
+    font-size: 13px;
+
+}
+
+
+td {
+
+    font-size: 14px;
+
+}
+
+
+.edit-button,
+.delete-button {
+
+    border: none;
+
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-right: 5px;
+
+}
+
+
+.edit-button {
+
+    background: #247a49;
+
+}
+
+
+.delete-button {
+
+    background: #c0392b;
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 650px) {
+
+    .page-container {
+
+        padding: 16px;
+
+    }
+
+
+    .page-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .summary-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .card {
+
+        padding: 18px;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+/*
+==================================================
+FINORA BUDGET PAGE
+==================================================
+*/
+
+
+const API_URL = "/budgets/";
+
+
+let budgets = [];
+
+
+/*
+==================================================
+TOKEN
+==================================================
+*/
+
+function getToken() {
+
+    return sessionStorage.getItem(
+        "access_token"
+    );
+
+}
+
+
+/*
+==================================================
+AUTH HEADERS
+==================================================
+*/
+
+function getHeaders(json = false) {
+
+    const headers = {};
+
+    const token = getToken();
+
+
+    if (token) {
+
+        headers["Authorization"] =
+            "Bearer " + token;
+
+    }
+
+
+    if (json) {
+
+        headers["Content-Type"] =
+            "application/json";
+
+    }
+
+
+    return headers;
+
+}
+
+
+/*
+==================================================
+API REQUEST
+==================================================
+*/
+
+async function apiRequest(
+    url,
+    options = {}
+) {
+
+    const response = await fetch(
+
+        url,
+
+        {
+
+            ...options,
+
+            headers: {
+
+                ...getHeaders(
+                    Boolean(options.body)
+                ),
+
+                ...(options.headers || {})
+
+            }
+
+        }
+
+    );
+
+
+    if (
+        response.status === 401 ||
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "Your session is not authorized. Please log in again."
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        let errorMessage =
+            `Request failed: ${response.status}`;
+
+
+        try {
+
+            const errorData =
+                await response.json();
+
+            if (errorData.detail) {
+
+                errorMessage =
+                    errorData.detail;
+
+            }
+
+        } catch {
+
+            // Keep default error message
+
+        }
+
+
+        throw new Error(errorMessage);
+
+    }
+
+
+    if (response.status === 204) {
+
+        return null;
+
+    }
+
+
+    return response.json();
+
+}
+
+
+/*
+==================================================
+FORMAT MONEY
+==================================================
+*/
+
+function formatMoney(value) {
+
+    return Number(value || 0)
+        .toLocaleString(
+
+            "en-IN",
+
+            {
+
+                style: "currency",
+
+                currency: "INR"
+
+            }
+
+        );
+
+}
+
+
+/*
+==================================================
+ESCAPE HTML
+==================================================
+*/
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(
+            /[&<>"']/g,
+            character => ({
+
+                "&": "&amp;",
+
+                "<": "&lt;",
+
+                ">": "&gt;",
+
+                '"': "&quot;",
+
+                "'": "&#039;"
+
+            })[character]
+        );
+
+}
+
+
+/*
+==================================================
+FORMAT MONTH
+==================================================
+*/
+
+function formatMonth(value) {
+
+    if (!value) {
+
+        return "—";
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(value);
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+/*
+==================================================
+SHOW MESSAGE
+==================================================
+*/
+
+function showMessage(
+    message,
+    type = "success"
+) {
+
+    const element =
+        document.getElementById(
+            "message"
+        );
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "message " + type;
+
+}
+
+
+/*
+==================================================
+CLEAR MESSAGE
+==================================================
+*/
+
+function clearMessage() {
+
+    const element =
+        document.getElementById(
+            "message"
+        );
+
+
+    element.textContent = "";
+
+    element.className =
+        "message";
+
+}
+
+
+/*
+==================================================
+GET BUDGET ID
+==================================================
+*/
+
+function getBudgetId(budget) {
+
+    return budget.id ?? budget._id;
+
+}
+
+
+/*
+==================================================
+RENDER BUDGETS
+==================================================
+*/
+
+function renderBudgets() {
+
+    const tbody =
+        document.getElementById(
+            "budgetTableBody"
+        );
+
+
+    /*
+        Total budget
+    */
+
+    const total =
+        budgets.reduce(
+
+            (sum, budget) =>
+
+                sum +
+                Number(
+                    budget.monthly_limit || 0
+                ),
+
+            0
+
+        );
+
+
+    document.getElementById(
+        "totalBudget"
+    ).textContent =
+        formatMoney(total);
+
+
+    document.getElementById(
+        "budgetCount"
+    ).textContent =
+        budgets.length;
+
+
+    /*
+        No budgets
+    */
+
+    if (!budgets.length) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    No budgets found.
+                    Create your first budget above.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+        Display budgets
+    */
+
+    tbody.innerHTML =
+
+        budgets.map(
+            budget => {
+
+                const id =
+                    escapeHTML(
+                        getBudgetId(budget)
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHTML(
+                                budget.category
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatMoney(
+                                budget.monthly_limit
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                formatMonth(
+                                    budget.month
+                                )
+                            )}
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="edit-button"
+                                onclick="editBudget('${id}')"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="delete-button"
+                                onclick="deleteBudget('${id}')"
+                            >
+                                Delete
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        ).join("");
+
+}
+
+
+/*
+==================================================
+LOAD BUDGETS
+==================================================
+*/
+
+async function loadBudgets() {
+
+    const tbody =
+        document.getElementById(
+            "budgetTableBody"
+        );
+
+
+    try {
+
+        clearMessage();
+
+
+        const data =
+            await apiRequest(
+                API_URL
+            );
+
+
+        budgets =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.budgets ||
+                    data.records ||
+                    []
+                );
+
+
+        renderBudgets();
+
+
+    } catch (error) {
+
+        console.error(
+            "Budget loading error:",
+            error
+        );
+
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    Could not load budgets.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/*
+==================================================
+RESET FORM
+==================================================
+*/
+
+function resetForm() {
+
+    document
+        .getElementById(
+            "budgetForm"
+        )
+        .reset();
+
+
+    document
+        .getElementById(
+            "budgetId"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "formTitle"
+        )
+        .textContent =
+        "Add New Budget";
+
+
+    document
+        .getElementById(
+            "submitButton"
+        )
+        .textContent =
+        "Add Budget";
+
+
+    document
+        .getElementById(
+            "cancelButton"
+        )
+        .hidden = true;
+
+
+    /*
+        Set current month
+    */
+
+    const now =
+        new Date();
+
+
+    const month =
+        now.getFullYear() +
+        "-" +
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0");
+
+
+    document
+        .getElementById(
+            "month"
+        )
+        .value =
+        month;
+
+
+    clearMessage();
+
+}
+
+
+/*
+==================================================
+EDIT BUDGET
+==================================================
+*/
+
+function editBudget(id) {
+
+    const budget =
+        budgets.find(
+
+            item =>
+
+                String(
+                    getBudgetId(item)
+                ) === String(id)
+
+        );
+
+
+    if (!budget) {
+
+        showMessage(
+            "Budget not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document
+        .getElementById(
+            "budgetId"
+        )
+        .value =
+        getBudgetId(budget);
+
+
+    document
+        .getElementById(
+            "category"
+        )
+        .value =
+        budget.category || "";
+
+
+    document
+        .getElementById(
+            "monthlyLimit"
+        )
+        .value =
+        budget.monthly_limit ?? "";
+
+
+    /*
+        Convert ISO date into
+        YYYY-MM
+    */
+
+    const date =
+        new Date(
+            budget.month
+        );
+
+
+    if (
+        !Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        const month =
+            date.getFullYear() +
+            "-" +
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+
+        document
+            .getElementById(
+                "month"
+            )
+            .value =
+            month;
+
+    }
+
+
+    document
+        .getElementById(
+            "formTitle"
+        )
+        .textContent =
+        "Edit Budget";
+
+
+    document
+        .getElementById(
+            "submitButton"
+        )
+        .textContent =
+        "Update Budget";
+
+
+    document
+        .getElementById(
+            "cancelButton"
+        )
+        .hidden = false;
+
+
+    document
+        .getElementById(
+            "budgetForm"
+        )
+        .scrollIntoView({
+
+            behavior: "smooth"
+
+        });
+
+}
+
+
+/*
+==================================================
+SUBMIT FORM
+==================================================
+*/
+
+document
+    .getElementById(
+        "budgetForm"
+    )
+    .addEventListener(
+
+        "submit",
+
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const budgetId =
+                document
+                    .getElementById(
+                        "budgetId"
+                    )
+                    .value;
+
+
+            const category =
+                document
+                    .getElementById(
+                        "category"
+                    )
+                    .value;
+
+
+            const monthlyLimit =
+                Number(
+                    document
+                        .getElementById(
+                            "monthlyLimit"
+                        )
+                        .value
+                );
+
+
+            const monthValue =
+                document
+                    .getElementById(
+                        "month"
+                    )
+                    .value;
+
+
+            /*
+                Convert YYYY-MM
+                into first day of month
+            */
+
+            const month =
+                monthValue +
+                "-01T00:00:00";
+
+
+            const payload = {
+
+                category:
+                    category,
+
+                monthly_limit:
+                    monthlyLimit,
+
+                month:
+                    month
+
+            };
+
+
+            try {
+
+                /*
+                    UPDATE
+                */
+
+                if (budgetId) {
+
+                    await apiRequest(
+
+                        API_URL +
+                        encodeURIComponent(
+                            budgetId
+                        ),
+
+                        {
+
+                            method: "PUT",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+
+                    );
+
+
+                    showMessage(
+                        "Budget updated successfully!"
+                    );
+
+                }
+
+
+                /*
+                    CREATE
+                */
+
+                else {
+
+                    await apiRequest(
+
+                        API_URL,
+
+                        {
+
+                            method: "POST",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+
+                    );
+
+
+                    showMessage(
+                        "Budget created successfully!"
+                    );
+
+                }
+
+
+                resetForm();
+
+                await loadBudgets();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Budget save error:",
+                    error
+                );
+
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+    );
+
+
+/*
+==================================================
+DELETE BUDGET
+==================================================
+*/
+
+async function deleteBudget(id) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this budget?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiRequest(
+
+            API_URL +
+            encodeURIComponent(id),
+
+            {
+
+                method: "DELETE"
+
+            }
+
+        );
+
+
+        showMessage(
+            "Budget deleted successfully!"
+        );
+
+
+        await loadBudgets();
+
+
+    } catch (error) {
+
+        console.error(
+            "Budget delete error:",
+            error
+        );
+
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/*
+==================================================
+INITIALIZE
+==================================================
+*/
+
+resetForm();
+
+loadBudgets();
+
+</script>
+
+{% endblock %}

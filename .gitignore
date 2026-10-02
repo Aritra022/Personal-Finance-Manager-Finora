@@ -1,0 +1,51 @@
+
+# ==============================
+# Python cache files
+# ==============================
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ==============================
+# Virtual environment
+# ==============================
+.venv/
+venv/
+env/
+
+# ==============================
+# Environment variables / secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Uploaded profile pictures
+# ==============================
+uploads/profile_pictures/*
+!uploads/profile_pictures/.gitkeep
+
+# ==============================
+# IDE settings
+# ==============================
+.vscode/
+.idea/
+
+# ==============================
+# Operating system files
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs
+# ==============================
+*.log
+
+# ==============================
+# Testing and cache
+# ==============================
+.pytest_cache/
+.mypy_cache/
+.coverage

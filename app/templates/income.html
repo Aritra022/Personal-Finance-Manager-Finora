@@ -1,0 +1,1338 @@
+{% extends "base.html" %}
+
+{% block title %}Income | Finora{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1>Income</h1>
+            <p>Track and manage your earnings.</p>
+        </div>
+
+        <div class="page-navigation">
+            <a href="/dashboard/" class="back-button">
+                ← Dashboard
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Total Income -->
+    <div class="summary-card">
+        <p>Total Income</p>
+        <h2 id="totalIncome">₹0.00</h2>
+    </div>
+
+
+    <!-- Income Form -->
+    <div class="form-card">
+
+        <h2 id="formTitle">Add New Income</h2>
+
+        <form id="incomeForm">
+
+            <input type="hidden" id="incomeId">
+
+
+            <!-- Income Source -->
+            <div class="form-group">
+
+                <label for="title">
+                    Income Source
+                </label>
+
+                <input
+                    type="text"
+                    id="title"
+                    placeholder="e.g. Salary"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Amount -->
+            <div class="form-group">
+
+                <label for="amount">
+                    Amount (₹)
+                </label>
+
+                <input
+                    type="number"
+                    id="amount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Enter amount"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Category -->
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select id="category" required>
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="Salary">
+                        Salary
+                    </option>
+
+                    <option value="Freelance">
+                        Freelance
+                    </option>
+
+                    <option value="Business">
+                        Business
+                    </option>
+
+                    <option value="Investment">
+                        Investment
+                    </option>
+
+                    <option value="Gift">
+                        Gift
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Date -->
+            <div class="form-group">
+
+                <label for="date">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="date"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Description -->
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    placeholder="Optional details"
+                    rows="3"
+                ></textarea>
+
+            </div>
+
+
+            <!-- Buttons -->
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    id="submitButton"
+                >
+                    Add Income
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelButton"
+                    hidden
+                    onclick="resetForm()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <p id="message" role="status"></p>
+
+    </div>
+
+
+    <!-- Income History -->
+    <div class="table-card">
+
+        <h2>Income History</h2>
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Source
+                        </th>
+
+                        <th>
+                            Category
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="incomeTableBody">
+
+                    <tr>
+
+                        <td colspan="6">
+                            Loading income...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* Main container */
+
+.page-container {
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 24px;
+
+    color: var(--text-color, #222);
+
+}
+
+
+/* Header */
+
+.page-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+
+    gap: 15px;
+
+}
+
+
+.page-header h1 {
+
+    margin-bottom: 6px;
+
+}
+
+
+.page-header p {
+
+    color: #777;
+
+}
+
+
+/* Dashboard button */
+
+.back-button {
+
+    display: inline-block;
+
+    padding: 10px 16px;
+
+    border-radius: 8px;
+
+    background: #247a49;
+
+    color: white;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+}
+
+
+.back-button:hover {
+
+    opacity: 0.9;
+
+}
+
+
+/* Cards */
+
+.summary-card,
+.form-card,
+.table-card {
+
+    background: var(--card-bg, #fff);
+
+    border: 1px solid #e8e8e8;
+
+    border-radius: 14px;
+
+    padding: 24px;
+
+    margin-bottom: 24px;
+
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .04);
+
+}
+
+
+/* Summary */
+
+.summary-card {
+
+    background: #eaf8ef;
+
+}
+
+
+.summary-card p {
+
+    margin: 0 0 8px;
+
+    color: #39764d;
+
+}
+
+
+.summary-card h2 {
+
+    margin: 0;
+
+    font-size: 30px;
+
+    color: #176b38;
+
+}
+
+
+/* Form */
+
+.form-card h2,
+.table-card h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 20px;
+
+}
+
+
+.form-group {
+
+    margin-bottom: 16px;
+
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 600;
+
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px;
+
+    border: 1px solid #d8d8d8;
+
+    border-radius: 8px;
+
+    font: inherit;
+
+    background: var(--input-bg, #fff);
+
+    color: inherit;
+
+}
+
+
+.form-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+button {
+
+    padding: 11px 18px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    background: #247a49;
+
+    color: white;
+
+    font: inherit;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    opacity: .9;
+
+}
+
+
+#cancelButton {
+
+    background: #777;
+
+}
+
+
+/* Table */
+
+.table-responsive {
+
+    overflow-x: auto;
+
+}
+
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 700px;
+
+}
+
+
+th,
+td {
+    padding: 13px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    color: #1e293b;
+}
+
+th {
+    background: #f7f8f7;
+    color: #475569;
+    font-weight: 700;
+}
+
+td {
+    color: #1e293b;
+}
+
+/* Action buttons */
+
+.action-button {
+
+    padding: 7px 10px;
+
+    margin: 2px;
+
+    font-size: 13px;
+
+}
+
+
+.delete-button {
+
+    background: #c0392b;
+
+}
+
+
+/* Message */
+
+#message {
+
+    margin-bottom: 0;
+
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .page-container {
+
+        padding: 14px;
+
+    }
+
+
+    .summary-card,
+    .form-card,
+    .table-card {
+
+        padding: 16px;
+
+    }
+
+
+    .page-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+/*
+    ==========================================
+    FINORA INCOME PAGE
+    ==========================================
+*/
+
+
+/*
+    Get login token
+*/
+
+function getToken() {
+
+    return sessionStorage.getItem("access_token");
+
+}
+
+
+/*
+    Income API
+*/
+
+const API_URL = "/income/";
+
+
+/*
+    Store income records
+*/
+
+let incomeRecords = [];
+
+
+/*
+    Authentication headers
+*/
+
+function authHeaders(json = false) {
+
+    const headers = {};
+
+    const token = getToken();
+
+
+    if (token) {
+
+        headers["Authorization"] =
+            `Bearer ${token}`;
+
+    }
+
+
+    if (json) {
+
+        headers["Content-Type"] =
+            "application/json";
+
+    }
+
+
+    return headers;
+
+}
+
+
+/*
+    API request helper
+*/
+
+async function apiRequest(url, options = {}) {
+
+    const response = await fetch(url, {
+
+        ...options,
+
+        headers: {
+
+            ...authHeaders(
+                Boolean(options.body)
+            ),
+
+            ...(options.headers || {})
+
+        }
+
+    });
+
+
+    /*
+        IMPORTANT:
+
+        Do NOT delete the login token here.
+
+        Previously this page was doing:
+
+        sessionStorage.removeItem("access_token");
+
+        That could log the user out when
+        the Income API returned 401/403.
+    */
+
+    if (
+        response.status === 401 ||
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "Income API authorization failed. Please log in again."
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        const errorText =
+            await response.text();
+
+        throw new Error(
+            errorText ||
+            `Request failed: ${response.status}`
+        );
+
+    }
+
+
+    if (response.status === 204) {
+
+        return null;
+
+    }
+
+
+    return response.json();
+
+}
+
+
+/*
+    Get MongoDB ID
+*/
+
+function getIncomeId(item) {
+
+    return item.id ?? item._id;
+
+}
+
+
+/*
+    Show message
+*/
+
+function showMessage(
+    text,
+    isError = false
+) {
+
+    const message =
+        document.getElementById("message");
+
+
+    message.textContent = text;
+
+
+    message.style.color =
+        isError
+            ? "#c0392b"
+            : "#247a49";
+
+}
+
+
+/*
+    Format money
+*/
+
+function formatMoney(value) {
+
+    return Number(value || 0)
+        .toLocaleString(
+            "en-IN",
+            {
+                style: "currency",
+                currency: "INR"
+            }
+        );
+
+}
+
+
+/*
+    Protect HTML output
+*/
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(
+            /[&<>"']/g,
+            char => ({
+
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+
+            })[char]
+        );
+
+}
+
+
+/*
+    Format date
+*/
+
+function getDateValue(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+    return String(value).slice(0, 10);
+
+}
+
+
+/*
+    Render income
+*/
+
+function renderIncome() {
+
+    const tbody =
+        document.getElementById(
+            "incomeTableBody"
+        );
+
+
+    /*
+        Calculate total
+    */
+
+    const total =
+        incomeRecords.reduce(
+
+            (sum, item) =>
+
+                sum +
+                Number(item.amount || 0),
+
+            0
+
+        );
+
+
+    document.getElementById(
+        "totalIncome"
+    ).textContent =
+        formatMoney(total);
+
+
+    /*
+        No income
+    */
+
+    if (!incomeRecords.length) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    No income records yet.
+                    Add your first income!
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+        Display records
+    */
+
+    tbody.innerHTML =
+        incomeRecords.map(item => {
+
+            const id =
+                escapeHTML(
+                    getIncomeId(item)
+                );
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(item.title)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(item.category)}
+                    </td>
+
+                    <td>
+                        ${formatMoney(item.amount)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            getDateValue(item.date)
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            item.description || "—"
+                        )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action-button"
+                            onclick="startEditing('${id}')"
+                        >
+                            Edit
+                        </button>
+
+
+                        <button
+                            class="action-button delete-button"
+                            onclick="deleteIncome('${id}')"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/*
+    Load income
+*/
+
+async function loadIncome() {
+
+    const tbody =
+        document.getElementById(
+            "incomeTableBody"
+        );
+
+
+    try {
+
+        /*
+            Do NOT redirect to login here.
+
+            The old code contained:
+
+            if (!token) {
+                window.location.href = "/";
+            }
+
+            That has been removed.
+        */
+
+        const data =
+            await apiRequest(API_URL);
+
+
+        incomeRecords =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.income ||
+                    data.records ||
+                    []
+                );
+
+
+        renderIncome();
+
+
+    } catch (error) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    Could not load income.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        showMessage(
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+
+/*
+    Reset form
+*/
+
+function resetForm() {
+
+    document
+        .getElementById("incomeForm")
+        .reset();
+
+
+    document
+        .getElementById("incomeId")
+        .value = "";
+
+
+    document
+        .getElementById("formTitle")
+        .textContent =
+        "Add New Income";
+
+
+    document
+        .getElementById("submitButton")
+        .textContent =
+        "Add Income";
+
+
+    document
+        .getElementById("cancelButton")
+        .hidden = true;
+
+
+    document
+        .getElementById("date")
+        .value =
+        new Date()
+            .toISOString()
+            .slice(0, 10);
+
+
+    showMessage("");
+
+}
+
+
+/*
+    Edit income
+*/
+
+function startEditing(id) {
+
+    const item =
+        incomeRecords.find(
+
+            record =>
+
+                String(
+                    getIncomeId(record)
+                ) === String(id)
+
+        );
+
+
+    if (!item) {
+
+        showMessage(
+            "Income record not found.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("incomeId")
+        .value =
+        getIncomeId(item);
+
+
+    document
+        .getElementById("title")
+        .value =
+        item.title || "";
+
+
+    document
+        .getElementById("amount")
+        .value =
+        item.amount ?? "";
+
+
+    document
+        .getElementById("category")
+        .value =
+        item.category || "";
+
+
+    document
+        .getElementById("date")
+        .value =
+        getDateValue(item.date);
+
+
+    document
+        .getElementById("description")
+        .value =
+        item.description || "";
+
+
+    document
+        .getElementById("formTitle")
+        .textContent =
+        "Edit Income";
+
+
+    document
+        .getElementById("submitButton")
+        .textContent =
+        "Update Income";
+
+
+    document
+        .getElementById("cancelButton")
+        .hidden = false;
+
+
+    document
+        .getElementById("incomeForm")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+
+
+/*
+    Submit income form
+*/
+
+document
+    .getElementById("incomeForm")
+    .addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const id =
+                document
+                    .getElementById(
+                        "incomeId"
+                    )
+                    .value;
+
+
+            const payload = {
+
+                title:
+                    document
+                        .getElementById("title")
+                        .value
+                        .trim(),
+
+                amount:
+                    Number(
+                        document
+                            .getElementById("amount")
+                            .value
+                    ),
+
+                category:
+                    document
+                        .getElementById("category")
+                        .value,
+
+                date:
+                    document
+                        .getElementById("date")
+                        .value,
+
+                description:
+                    document
+                        .getElementById(
+                            "description"
+                        )
+                        .value
+                        .trim()
+
+            };
+
+
+            try {
+
+                /*
+                    Update existing income
+                */
+
+                if (id) {
+
+                    await apiRequest(
+
+                        `${API_URL}${encodeURIComponent(id)}`,
+
+                        {
+
+                            method: "PUT",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+
+                    );
+
+
+                    showMessage(
+                        "Income updated successfully!"
+                    );
+
+
+                }
+
+
+                /*
+                    Add new income
+                */
+
+                else {
+
+                    await apiRequest(
+
+                        API_URL,
+
+                        {
+
+                            method: "POST",
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+
+                    );
+
+
+                    showMessage(
+                        "Income added successfully!"
+                    );
+
+                }
+
+
+                resetForm();
+
+                await loadIncome();
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message,
+                    true
+                );
+
+            }
+
+        }
+    );
+
+
+/*
+    Delete income
+*/
+
+async function deleteIncome(id) {
+
+    if (
+        !confirm(
+            "Are you sure you want to delete this income?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiRequest(
+
+            `${API_URL}${encodeURIComponent(id)}`,
+
+            {
+                method: "DELETE"
+            }
+
+        );
+
+
+        showMessage(
+            "Income deleted successfully!"
+        );
+
+
+        await loadIncome();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+
+/*
+    Initialize page
+*/
+
+resetForm();
+
+loadIncome();
+
+</script>
+
+{% endblock %}

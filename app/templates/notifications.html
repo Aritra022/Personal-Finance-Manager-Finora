@@ -1,0 +1,636 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .notifications-page {
+        min-height: 100vh;
+        background: #f8fafc;
+        padding: 30px;
+    }
+
+    .notifications-container {
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #0f172a;
+    }
+
+    .page-header p {
+        margin-top: 6px;
+        color: #64748b;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        background: #0f172a;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .summary-card h3 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .summary-value {
+        font-size: 25px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .card {
+        background: white;
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 20px;
+    }
+
+    .mark-all-btn {
+        border: none;
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 9px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .notification-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 17px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #ede9fe;
+        font-size: 19px;
+    }
+
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .notification-message {
+        margin-top: 5px;
+        font-size: 13px;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
+    .notification-time {
+        margin-top: 7px;
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    .notification-status {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #7c3aed;
+        margin-top: 7px;
+        flex-shrink: 0;
+    }
+
+    .notification-item.read .notification-status {
+        background: #cbd5e1;
+    }
+
+    .notification-item.read .notification-title {
+        font-weight: 600;
+    }
+
+    .notification-actions {
+        display: flex;
+        gap: 7px;
+        margin-top: 9px;
+    }
+
+    .small-btn {
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .read-btn {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #64748b;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 13px 16px;
+        border-radius: 9px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    @media (max-width: 700px) {
+        .notifications-page {
+            padding: 18px;
+        }
+
+        .page-header {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="notifications-page">
+
+    <div class="notifications-container">
+
+        <div class="page-header">
+
+            <div>
+                <h1>Notifications</h1>
+                <p>Stay updated about your financial activity.</p>
+            </div>
+
+            <a href="/dashboard/" class="back-btn">
+                ← Dashboard
+            </a>
+
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+                <h3>Total Notifications</h3>
+                <div class="summary-value" id="totalNotifications">
+                    0
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Unread</h3>
+                <div class="summary-value" id="unreadNotifications">
+                    0
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h3>Read</h3>
+                <div class="summary-value" id="readNotifications">
+                    0
+                </div>
+            </div>
+
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>Your Notifications</h2>
+
+                <button
+                    class="mark-all-btn"
+                    onclick="markAllAsRead()"
+                >
+                    Mark All as Read
+                </button>
+
+            </div>
+
+            <div
+                id="notificationList"
+                class="notification-list"
+            >
+                <div class="empty-state">
+                    Loading notifications...
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "/notifications/";
+
+
+// Token
+function getToken() {
+    return sessionStorage.getItem("access_token");
+}
+
+
+// API request
+async function apiRequest(url, options = {}) {
+
+    const token = getToken();
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (token) {
+    headers["Authorization"] =
+        `Bearer ${token}`;
+
+    const separator = url.includes("?") ? "&" : "?";
+    url = `${url}${separator}token=${encodeURIComponent(token)}`;
+}
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (!response.ok) {
+
+        let message =
+            "Something went wrong.";
+
+        try {
+
+            const data =
+                await response.json();
+
+            message =
+                data.detail || message;
+
+        } catch (error) {}
+
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
+
+// Escape HTML
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// Format date
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "";
+    }
+
+    const date =
+        new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+// Load notifications
+async function loadNotifications() {
+
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+    try {
+
+        const response = await apiRequest(API_URL);
+      const notifications = response.notifications || [];
+
+        updateSummary(notifications);
+
+
+        if (
+            !notifications ||
+            notifications.length === 0
+        ) {
+
+            list.innerHTML = `
+                <div class="empty-state">
+                    🔔<br><br>
+                    No notifications yet.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        list.innerHTML =
+            notifications.map(notification => {
+
+                const isRead =
+                    notification.is_read === true;
+
+                return `
+                    <div
+                        class="notification-item
+                        ${isRead ? "read" : ""}"
+                    >
+
+                        <div class="notification-icon">
+                            🔔
+                        </div>
+
+                        <div class="notification-content">
+
+                            <div class="notification-title">
+                                ${escapeHtml(
+                                    notification.title ||
+                                    "Notification"
+                                )}
+                            </div>
+
+                            <div class="notification-message">
+                                ${escapeHtml(
+                                    notification.message ||
+                                    ""
+                                )}
+                            </div>
+
+                            <div class="notification-time">
+                                ${formatDate(
+                                    notification.created_at
+                                )}
+                            </div>
+
+                            <div class="notification-actions">
+
+                                ${
+                                    !isRead
+                                    ? `
+                                        <button
+                                            class="small-btn read-btn"
+                                            onclick="markAsRead(
+                                                '${notification.id}'
+                                            )"
+                                        >
+                                            Mark as Read
+                                        </button>
+                                    `
+                                    : ""
+                                }
+
+                                <button
+                                    class="small-btn delete-btn"
+                                    onclick="deleteNotification(
+                                        '${notification.id}'
+                                    )"
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="notification-status"></div>
+
+                    </div>
+                `;
+
+            }).join("");
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById(
+            "errorMessage"
+        ).textContent = error.message;
+
+        document.getElementById(
+            "errorMessage"
+        ).style.display = "block";
+
+        list.innerHTML = `
+            <div class="empty-state">
+                Unable to load notifications.
+            </div>
+        `;
+    }
+}
+
+
+// Summary
+function updateSummary(notifications) {
+
+    const total =
+        notifications.length;
+
+    const unread =
+        notifications.filter(
+            notification =>
+                notification.is_read !== true
+        ).length;
+
+    const read =
+        total - unread;
+
+
+    document.getElementById(
+        "totalNotifications"
+    ).textContent = total;
+
+    document.getElementById(
+        "unreadNotifications"
+    ).textContent = unread;
+
+    document.getElementById(
+        "readNotifications"
+    ).textContent = read;
+}
+
+
+// Mark one as read
+async function markAsRead(id) {
+
+    try {
+
+        await apiRequest(
+            `${API_URL}${id}/read`,
+            {
+                method: "PATCH"
+            }
+        );
+
+        await loadNotifications();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// Mark all as read
+async function markAllAsRead() {
+
+    try {
+
+        await apiRequest(
+            `${API_URL}read-all`,
+            {
+                method: "PATCH"
+            }
+        );
+
+        await loadNotifications();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// Delete notification
+async function deleteNotification(id) {
+
+    const confirmed =
+        confirm(
+            "Delete this notification?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        await apiRequest(
+            `${API_URL}${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        await loadNotifications();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// Start
+loadNotifications();
+
+</script>
+
+{% endblock %}
