@@ -29,9 +29,6 @@ def home(request: Request):
         name="login.html",
         context={}
     )
-    
-
-
 # Dashboard page
 @router.get("/dashboard", response_class=HTMLResponse)
 @router.get("/dashboard/", response_class=HTMLResponse)
